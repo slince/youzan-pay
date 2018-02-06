@@ -1,0 +1,33 @@
+{
+    "name": "slince/youzan-pay",
+    "description": "An integrated alipay and wechat payment solution based on YouZan using php",
+    "keywords": ["YouZan", "有赞", "alipay", "wechat", "支付宝", "微信支付"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "slince",
+            "email": "taosikai@yeah.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Slince\\YouzanPay\\": "./src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Slince\\YouzanPay\\Tests\\": "./tests"
+        }
+    },
+    "require": {
+        "php": ">=5.6.0",
+        "guzzlehttp/guzzle": "^6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.0|^6.0",
+        "symfony/http-foundation": "^2.0|^3.0|^4.0",
+        "zendframework/zend-diactoros": "^1.0"
+    },
+    "minimum-stability": "stable"
+}
