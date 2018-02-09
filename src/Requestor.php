@@ -78,14 +78,15 @@ class Requestor
             return static::$token;
         }
         $response = static::$httpClient->post(static::GET_TOKEN_ENDPOINT, [
-            'client_id' => static::$apiContext->getClientId(),
-            'client_secret' => static::$apiContext->getClientSecret(),
-            'grant_type' => 'silent',
-            'kdt_id' => static::$apiContext->getKdtId(),
+            'form_params' => [
+                'client_id' => static::$apiContext->getClientId(),
+                'client_secret' => static::$apiContext->getClientSecret(),
+                'grant_type' => 'silent',
+                'kdt_id' => static::$apiContext->getKdtId(),
+            ]
         ]);
         $json = \GuzzleHttp\json_decode((string) $response->getBody(), true);
-        $expiresAt = new \DateTime();
-        $expiresAt->add(new \DateInterval($json['expires_in']));
+        $expiresAt = new \DateTime($json['expires_in'] . ' seconds');
 
         return static::$token = new Token($json['access_token'], $expiresAt);
     }
@@ -119,6 +120,8 @@ class Requestor
     {
         if ($qrCode instanceof QRCode) {
             $qrID = $qrCode->getId();
+        } else {
+            $qrID = $qrCode;
         }
         $json = static::setRequest('get', static::GET_TRADES_ENDPOINT, [
             'qr_id' => $qrID,
@@ -152,13 +155,29 @@ class Requestor
     protected static function setRequest($method, $uri, $parameters)
     {
         $token = static::getAccessToken();
-        if ($token->isValid()) {
+        if (!$token->isValid()) {
             throw new \InvalidArgumentException(sprintf('The token "%s" is invalid', $token->getAccessToken()));
         }
         $parameters['access_token'] = $token->getAccessToken();
-        $response = static::$httpClient->request($method, $uri, $parameters);
 
-        return \GuzzleHttp\json_decode((string) $response->getBody(), true);
+        if (strcasecmp($method, 'post') === 0) {
+            $options['form_params'] = $parameters;
+        } else {
+            $options['query'] = $parameters;
+        }
+
+        $response = static::$httpClient->request($method, $uri, $options);
+
+        $json = \GuzzleHttp\json_decode((string) $response->getBody(), true);
+
+        if (isset($json['error_response'])) {
+            throw new \RuntimeException(sprintf('Error request, "%d": "%s"',
+                $json['error_response']['code'],
+                $json['error_response']['msg']
+            ));
+        }
+
+        return $json;
     }
 
     /**
