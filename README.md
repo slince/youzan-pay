@@ -12,7 +12,7 @@
 使用 Composer 安装
 
 ```bash
-$ composer require slince/youzan-pay
+$ composer require slince/youzan-pay *@beta
 ```
 
 ## Basic Usage
