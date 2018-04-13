@@ -142,7 +142,7 @@ class Requestor
     {
         $json = static::setRequest('get', static::GET_TRADE_ENDPOINT, [
             'tid' => $id,
-        ])['response'];
+        ])['response']['trade'];
         $trade = new Trade();
         $trade->setId($id)
             ->setCreated(new \DateTime($json['created']))
